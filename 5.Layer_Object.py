@@ -1,4 +1,8 @@
 import numpy as np
+import nnfs
+nnfs.init
+import matplotlib.pyplot as plt 
+from nnfs.datasets import spiral_data
 
 #OBJECT LAYERS
 
@@ -19,13 +23,10 @@ class Layer_Dense:
     def forward(self, inputs):#Forward method
         self.output = np.dot(inputs, self.weights) + self.biases
 
-layer1 = Layer_Dense(4, 5)
-layer2 = Layer_Dense(5, 2)
-
-layer1.forward(X)
-print(layer1.output)
-layer2.forward(layer1.output)
-print(layer2.output)
+X, Y = spiral_data(samples = 100, classes=3)
+dense1 = Layer_Dense(2, 3)
+dense1.forward(X)
+print(dense1.output[:5])
 #the shape can be defined here itself, so that we dont have to do the transpose everyttime during the forward pass.
 
 
