@@ -20,6 +20,8 @@ It can currently take inputs, multiply them by weights, add biases, and produce 
 - [x] Setting up the project structure.
 - [x] **Class `Layer_Dense`**: It initializes random weights and biases.
 - [x] **Forward Pass**: It calculates the dot product of inputs and weights.
+- [x] **ReLU Activation Function**: It calculates the dot product of inputs and weights.
+- [x] **SoftMax Activation Function**: It calculates the dot product of inputs and weights.
 
 ## 🛠️ Tools I'm Using
 * **Python**: The language I'm coding in.
@@ -67,8 +69,8 @@ This is my checklist for the project. I'll check these off as I learn and code t
 
 - [x] **Step 1:** Create the Neurons (Dense Layer)
 - [x] **Step 2:** The Forward Pass (Math part)
-- [ ] **Step 3:** Activation Functions (ReLU - I'm doing this next!)
-- [ ] **Step 4:** Softmax Activation (For the output layer)
+- [x] **Step 3:** Activation Functions (ReLU - for the hidden layer)
+- [x] **Step 4:** Softmax Activation (For the output layer)
 - [ ] **Step 5:** Calculating Loss (How wrong is the model?)
 - [ ] **Step 6:** Backpropagation (The hard part!)
 - [ ] **Step 7:** Optimizer (SGD/Adam)
