@@ -35,6 +35,6 @@ class Loss_Categorical_Cross_Entropy(Loss):
             )
 
         # Loss
-        negative_log_likelihoods = np.log(correct_confidences)
+        negative_log_likelihoods = -np.log(correct_confidences)
         return negative_log_likelihoods
     
