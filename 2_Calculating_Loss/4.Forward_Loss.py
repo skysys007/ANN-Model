@@ -105,5 +105,15 @@ Loss = loss_function.calculate(activation2.output, y)
 # Print Loss Function
 print('Loss:', Loss)
 
+# the prediction done by the model
+predictions = np.argmax(activation2.output, axis=1)
+# for hot encoded values
+if len(y.shape) == 2:
+    y = np.argmax(y, axis=1)
+# accuracy  = No of Correct predictions/No. of Total Predictions 
+accuracy = np.mean(predictions == y)
+#print accuracy
+print('ACC: ', accuracy)
+
 
 
