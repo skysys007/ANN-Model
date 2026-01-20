@@ -4,14 +4,14 @@ Hi! Welcome to my repository. I am currently learning Deep Learning, and I decid
 
 I’m avoiding libraries like TensorFlow or PyTorch for now because I really want to understand the math and logic happening "under the hood."
 
-## 🎯 The Goal
+## The Goal
 The main goal of this project is to learn. I want to be able to answer:
 * How do neurons actually "learn"?
 * What is the math behind Backpropagation?
 * How does the code look without the "magic" of high-level frameworks?
 
-## 🚀 Current Progress
-**Status:** Just started! 🌱
+## Current Progress
+**Status:** Working On Optimization! 
 
 I have successfully coded the first building block of the network: **The Dense Layer**.
 It can currently take inputs, multiply them by weights, add biases, and produce an output (Forward Pass).
@@ -23,11 +23,11 @@ It can currently take inputs, multiply them by weights, add biases, and produce 
 - [x] **ReLU Activation Function**: It calculates the dot product of inputs and weights.
 - [x] **SoftMax Activation Function**: It calculates the dot product of inputs and weights.
 
-## 🛠️ Tools I'm Using
+## Tools I'm Using
 * **Python**: The language I'm coding in.
 * **NumPy**: I'm using this for the matrix math (dot products) because doing that with raw Python lists is too slow!
 
-## 💻 How to Run My Code
+## How to Run My Code
 If you want to see what I've built so far:
 
 1.  **Clone the repo:**
@@ -64,16 +64,16 @@ If you want to see what I've built so far:
     print(layer1.output)
     ```
 
-## 📝 Learning Roadmap / To-Do
+## Learning Roadmap / To-Do
 This is my checklist for the project. I'll check these off as I learn and code them.
 
 - [x] **Step 1:** Create the Neurons (Dense Layer)
 - [x] **Step 2:** The Forward Pass (Math part)
 - [x] **Step 3:** Activation Functions (ReLU - for the hidden layer)
 - [x] **Step 4:** Softmax Activation (For the output layer)
-- [ ] **Step 5:** Calculating Loss (How wrong is the model?)
+- [x] **Step 5:** Calculating Loss (How wrong is the model?)
 - [ ] **Step 6:** Backpropagation (The hard part!)
 - [ ] **Step 7:** Optimizer (SGD/Adam)
 
-## 👋 Connect
+## Connect
 I'm documenting my learning journey here. If you have any tips for a beginner or see a bug in my math, feel free to open an issue or let me know!
