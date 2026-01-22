@@ -118,16 +118,9 @@ $$
 **The Gradient**
 The gradient is a vector of all possible partial derivatives. An example of a triple-input function:
 
+**The Gradient**
+The gradient is a vector of all possible partial derivatives. An example of a triple-input function:
+
 $$
-\nabla f(x, y, z) = \begin{bmatrix} 
-\frac{\partial}{\partial x} f(x, y, z) \\ 
-\frac{\partial}{\partial y} f(x, y, z) \\ 
-\frac{\partial}{\partial z} f(x, y, z) 
-\end{bmatrix} 
-= 
-\begin{bmatrix} 
-\frac{\partial}{\partial x} \\ 
-\frac{\partial}{\partial y} \\ 
-\frac{\partial}{\partial z} 
-\end{bmatrix} f(x, y, z)
+\nabla f(x, y, z) = \left[ \begin{array}{c} \frac{\partial}{\partial x} f(x, y, z) \\ \frac{\partial}{\partial y} f(x, y, z) \\ \frac{\partial}{\partial z} f(x, y, z) \end{array} \right]
 $$
