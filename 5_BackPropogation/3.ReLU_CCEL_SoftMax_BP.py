@@ -1,4 +1,7 @@
 import numpy as np
+import nnfs
+nnfs.init()
+from nnfs.datasets import spiral_data
 
 class Layer_Dense:
 
@@ -17,7 +20,7 @@ class Layer_Dense:
     def backward(self, dvalues):
         # Gradients of params
         self.dweights = np.dot(self.inputs.T, dvalues)
-        self.dbias = np.sum(dvalues, axis=0, keepdims=True)
+        self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
         # Gradients of values
         self.dinputs = np.dot(dvalues, self.weights.T)
 
@@ -25,21 +28,21 @@ class Layer_Dense:
 class Activation_ReLU:
     # Forward Pass
     def forward(self, inputs):
-        self.output = np.maximum(0, inputs)
         # Remember input values
         self.inputs = inputs
+        self.output = np.maximum(0, inputs)
 
     # Backward Pass
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
-        self.dinputs[dvalues<=0] = 0 
+        self.dinputs[self.inputs <= 0] = 0 
 
 #SoftMax Function
 class Activation_Softmax:
-    
     #Forward Pass
     def forward(self, inputs):
         #Exponentiate Values
+        self.inputs = inputs
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         #Normalization
         probabilities = exp_values/np.sum(exp_values, axis=1, keepdims=True)
@@ -55,7 +58,9 @@ class Activation_Softmax:
             single_output = single_output.reshape(-1, 1)
             # Calc Jacobian Matrix
             # diagflat to convert it into a diagonal matrix
-            jacobian_matrix = np.diagflat(single_output) - np.dot(single_output, single_output.T)
+            jacobian_matrix =(
+                np.diagflat(single_output) - np.dot(single_output, single_output.T)
+                )
             # Calcuate sample wise gradients and add it to the array of sample gradients
             self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
 
@@ -79,7 +84,7 @@ class Loss_Categorical_Cross_Entropy(Loss):
         samples = len(y_pred)
 
         # Clip data
-        y_pred_clipped = np.clip(y_pred, 1e-7, 1-1e-7)
+        y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
 
         # Check for vector or a list of vectors
         # for categorical labels/sparse vector
@@ -111,7 +116,7 @@ class Loss_Categorical_Cross_Entropy(Loss):
         # Gradient of CCEL function
         self.dinputs = - y_true/dvalues
         # Normalize Gradient
-        self.dinputs /= samples
+        self.dinputs = self.dinputs / samples
 
 class Activation_SoftMax_Loss_CategoricalCrossentropy():
     # Create activation function and loss function objects
@@ -156,7 +161,7 @@ softmax_loss = Activation_SoftMax_Loss_CategoricalCrossentropy()
 softmax_loss.backward(softmax_outputs, class_targets)
 dvalues1 = softmax_loss.dinputs
 
-# Derivative Calculated by backpropogating step by ste
+# Derivative Calculated by backpropogating step by step
 activation = Activation_Softmax()
 activation.output = softmax_outputs
 loss = Loss_Categorical_Cross_Entropy()
@@ -164,7 +169,45 @@ loss.backward(softmax_outputs, class_targets)
 activation.backward(loss.dinputs)
 dvalues2 = activation.dinputs
 
+# Print Gradients
 print("Gradient: Combined Loss and SoftMax: ")
 print(dvalues1)
 print("Gradient: Seperate Loss and SoftMax: ")
 print(dvalues2)
+
+# Create data
+# Forward Pass
+X, y = spiral_data(samples=100, classes=3)
+dense1 = Layer_Dense(2, 3)
+activation1 = Activation_ReLU()
+dense2 = Layer_Dense(3, 3)
+loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
+dense1.forward(X)
+activation1.forward(dense1.output)
+dense2.forward(activation1.output)
+loss = loss_activation.forward(dense2.output, y)
+print(loss_activation.output[:5])
+print('loss: ', loss)
+
+# Convert into hod encoded values
+predictions = np.argmax(loss_activation.output, axis=1)
+if len(y.shape) == 2:
+    y = np.argmax(y, axis=1)
+accuracy = np.mean(predictions == y)
+# Accuracy
+print("acc: ", accuracy)
+
+# Backward Pass
+loss_activation.backward(loss_activation.output, y)
+dense2.backward(loss_activation.dinputs)
+activation1.backward(dense2.dinputs)
+dense1.backward(activation1.dinputs)
+
+# Print Gradients
+print(dense1.dweights)
+print("")
+print(dense1.dbiases)
+print("")
+print(dense2.dweights)
+print("")
+print(dense2.dbiases)
