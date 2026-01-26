@@ -114,22 +114,57 @@ class Loss_Categorical_Cross_Entropy(Loss):
         self.dinputs /= samples
 
 class Activation_SoftMax_Loss_CategoricalCrossentropy():
+    # Create activation function and loss function objects
     def __init__(self):
         self.activation = Activation_Softmax()
         self.loss = Loss_Categorical_Cross_Entropy() 
 
-        # Forward Pass
+    # Forward Pass
     def forward(self, inputs, y_true):
+            # O/P Layer Activation Function
             self.activation.forward(inputs)
+            # Set output to O/P layer activation function's output
             self.output = self.activation.output
+            # calculate the loss from the O/P and return it
             return self.loss.calculate(self.output, y_true)
-        
+    # Backward Pass    
     def backward(self, dvalues, y_true):
+            # No. of Samples
             samples = len(dvalues)
+            # Convert into hot encoded values
             if len(y_true.shape) == 2:
                 y_true = np.argmax(y_true, axis=1)
-
+            #copy so we can safely modify
             self.dinputs = dvalues.copy()
+            # Calculate Gradient(P.D of loss function w.r.t predicted O/P)
+            # which is y_pred - ytrue(which is always 1)
+            # since y_true is 1 we subtract the y_pred with 1
             self.dinputs[range(samples), y_true] -= 1
+            # Normalize Gradient
             self.dinputs = self.dinputs / samples
 
+softmax_outputs = np.array([
+    [0.7, 0.1, 0.2],
+    [0.1, 0.5, 0.4],
+    [0.02, 0.9, 0.08]
+])
+
+class_targets = np.array([0, 1, 1])
+
+# Derivate calculated using CCEL and SM function class
+softmax_loss = Activation_SoftMax_Loss_CategoricalCrossentropy()
+softmax_loss.backward(softmax_outputs, class_targets)
+dvalues1 = softmax_loss.dinputs
+
+# Derivative Calculated by backpropogating step by ste
+activation = Activation_Softmax()
+activation.output = softmax_outputs
+loss = Loss_Categorical_Cross_Entropy()
+loss.backward(softmax_outputs, class_targets)
+activation.backward(loss.dinputs)
+dvalues2 = activation.dinputs
+
+print("Gradient: Combined Loss and SoftMax: ")
+print(dvalues1)
+print("Gradient: Seperate Loss and SoftMax: ")
+print(dvalues2)
