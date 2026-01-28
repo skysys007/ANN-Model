@@ -118,7 +118,8 @@ activation1 = Activation_ReLU()
 dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
-optimizer = Optimizer_SGD()
+#setting the learning rate to 0.85
+optimizer = Optimizer_SGD(learning_rate=0.85)
 
 for epoch in range(100001):
     dense1.forward(X)
