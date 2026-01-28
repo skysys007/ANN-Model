@@ -103,13 +103,26 @@ class Activation_SoftMax_Loss_CategoricalCrossentropy:
 class Optimizer_SGD:
     # Initialize optimizer - set learning rate
     # initial learning rate - 1.0
-    def __init__(self, learning_rate = 1):
+    def __init__(self, learning_rate = 1, decay = 0.):
         self.learning_rate = learning_rate
+        self.current_learning_rate = learning_rate
+        self.decay = decay
+        self.iterations = 0
+
+    # Pre Update Parameters
+    def pre_update_params(self):
+        if self.decay:
+            self.current_learning_rate = self.learning_rate * (1/(1 + self.iterations*self.decay))
 
     # Update Parameters 
+    # set learning rate to current learning rate
     def update_params(self, Layer):
-        Layer.weights += -self.learning_rate * Layer.dweights
-        Layer.biases += -self.learning_rate * Layer.dbiases
+        Layer.weights += -self.current_learning_rate * Layer.dweights
+        Layer.biases += -self.current_learning_rate * Layer.dbiases
+    
+    # After Updating parameters
+    def post_update_params(self):
+        self.iterations+=1
 
 X, y = spiral_data(samples=100, classes=3)
 
@@ -119,7 +132,7 @@ dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 #setting the learning rate to 0.85
-optimizer = Optimizer_SGD(learning_rate=0.85)
+optimizer = Optimizer_SGD(learning_rate=1, decay=1e-5)
 
 for epoch in range(100001):
     dense1.forward(X)
@@ -136,6 +149,7 @@ for epoch in range(100001):
         print('epoch:' , epoch 
               , 'acc: ' , accuracy 
               , 'loss: ' , loss
+              , 'lr: ', optimizer.current_learning_rate
               )
 
     loss_activation.backward(loss_activation.output, y)
@@ -143,6 +157,8 @@ for epoch in range(100001):
     activation1.backward(dense2.dinputs)
     dense1.backward(activation1.dinputs)
 
+    optimizer.pre_update_params()
     optimizer.update_params(dense1)
     optimizer.update_params(dense2)
+    optimizer.post_update_params()
 
