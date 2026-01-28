@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" style="background-color: white;">
+  <text x="200" y="30" font-family="sans-serif" font-size="16" text-anchor="middle" fill="#333">Efficient Learning</text>
+  
+  <line x1="40" y1="260" x2="360" y2="260" stroke="#333" stroke-width="2"/>
+  <line x1="40" y1="40" x2="40" y2="260" stroke="#333" stroke-width="2"/>
+  
+  <path d="M 50 50 C 100 250, 150 250, 200 150 S 300 50, 350 150" fill="none" stroke="#e67e22" stroke-width="3"/>
+  
+  <polyline points="50,50 90,180 130,220 160,200 175,190 185,195" fill="none" stroke="#27ae60" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <circle cx="50" cy="50" r="4" fill="#27ae60"/>
+  <circle cx="90" cy="180" r="4" fill="#27ae60"/>
+  <circle cx="130" cy="220" r="4" fill="#27ae60"/>
+  <circle cx="185" cy="195" r="5" fill="#27ae60"/> <text x="190" y="170" font-family="sans-serif" font-size="12" fill="#27ae60">Global Minimum Reached</text>
+</svg>
