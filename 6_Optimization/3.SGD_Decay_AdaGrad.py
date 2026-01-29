@@ -103,12 +103,12 @@ class Activation_SoftMax_Loss_CategoricalCrossentropy:
 class Optimizer_SGD:
     # Initialize optimizer - set learning rate
     # initial learning rate - 1.0
-    def __init__(self, learning_rate = 1, decay = 0., momentum = 0.):
+    def __init__(self, learning_rate = 1, decay = 0, epsilon = 1e-7):
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
         self.iterations = 0
-        self.momentum = momentum
+        self.epsilon = epsilon
 
     # Pre Update Parameters
     def pre_update_params(self):
@@ -118,26 +118,17 @@ class Optimizer_SGD:
     # Update Parameters 
     # set learning rate to current learning rate
     def update_params(self, Layer):
+        # If the layer does not have the AdaGrad Matrix then we initialize such matrix with zeros
+        if not hasattr(Layer, 'weight_cache'):
+            Layer.weight_cache = np.zeros_like(Layer.weights)
+            Layer.bias_cache = np.zeros_like(Layer.biases)
+        # Update cache with squared current gradients
+        Layer.weight_cache += Layer.dweights**2
+        Layer.bias_cache += Layer.dbiases**2
 
-        # If we use momentum
-        if self.momentum:
-            # if layer does not contain momentum arrays create them filled with zerps
-            if not hasattr(Layer, 'weight_momentums'):
-                Layer.weight_momentums = np.zeros_like(Layer.weights)
-                Layer.bias_momentums = np.zeros_like(Layer.biases)
-            # update weights with previous updates * momentum and update with current gradients and learning rate
-            weight_updates = self.momentum * Layer.weight_momentums - self.current_learning_rate * Layer.dweights 
-            Layer.weight_momentums = weight_updates
-            # Bias updates
-            bias_updates = self.momentum * Layer.bias_momentums - self.current_learning_rate * Layer.dbiases
-            Layer.bias_momentums = bias_updates
-        # Vanilla SGD UPDATES
-        else:
-            weight_updates = -self.current_learning_rate*Layer.dweights
-            bias_updates = -self.current_learning_rate*Layer.dbiases
-        # updates weights using either vanilla or momentum updates
-        Layer.weights += weight_updates
-        Layer.biases += bias_updates
+        # Normalize Updates using AdaGrade Booster
+        Layer.weights += - self.current_learning_rate*Layer.dweights/(np.sqrt(Layer.weight_cache)+ self.epsilon)  
+        Layer.biases += - self.current_learning_rate*Layer.dbiases/(np.sqrt(Layer.bias_cache)+ self.epsilon)  
             
     # After Updating parameters
     def post_update_params(self):
@@ -151,7 +142,7 @@ dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 #setting the learning rate to 0.85
-optimizer = Optimizer_SGD(learning_rate=1, decay=1e-3, momentum=0.9)
+optimizer = Optimizer_SGD(decay=1e-6)
 
 for epoch in range(10001):
     dense1.forward(X)
@@ -180,3 +171,4 @@ for epoch in range(10001):
     optimizer.update_params(dense1)
     optimizer.update_params(dense2)
     optimizer.post_update_params()
+
