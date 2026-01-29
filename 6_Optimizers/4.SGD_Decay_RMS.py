@@ -143,9 +143,9 @@ dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 #setting the learning rate to 0.85
-optimizer = Optimizer_RMSprop(decay=1e-4)
+optimizer = Optimizer_RMSprop(learning_rate=0.02, rho = 0.999, decay=1e-5)
 
-for epoch in range(10001):
+for epoch in range(15001):
     dense1.forward(X)
     activation1.forward(dense1.output)
     dense2.forward(activation1.output)
