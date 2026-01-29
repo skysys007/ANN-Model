@@ -100,14 +100,15 @@ class Activation_SoftMax_Loss_CategoricalCrossentropy:
         self.dinputs /= samples
 
 # Scholastic Gradient Descent
-class Optimizer_Adagrad:
+class Optimizer_RMSprop:
     # Initialize optimizer - set learning rate
     # initial learning rate - 1.0
-    def __init__(self, learning_rate = 1, decay = 0, epsilon = 1e-7):
+    def __init__(self, learning_rate = .001, decay = 0., rho = 0.9, epsilon = 1e-7):
         self.learning_rate = learning_rate
         self.current_learning_rate = learning_rate
         self.decay = decay
         self.iterations = 0
+        self.rho = rho
         self.epsilon = epsilon
 
     # Pre Update Parameters
@@ -118,18 +119,18 @@ class Optimizer_Adagrad:
     # Update Parameters 
     # set learning rate to current learning rate
     def update_params(self, Layer):
-        # If the layer does not have the AdaGrad Matrix then we initialize such matrix with zeros
+        # if layer doesn't contain cache arrays initialize one with zeros
         if not hasattr(Layer, 'weight_cache'):
             Layer.weight_cache = np.zeros_like(Layer.weights)
             Layer.bias_cache = np.zeros_like(Layer.biases)
-        # Update cache with squared current gradients
-        Layer.weight_cache += Layer.dweights**2
-        Layer.bias_cache += Layer.dbiases**2
+        
+        # RMS Per Parameter cache and retention like momentum
+        Layer.weight_cache = self.rho*Layer.weight_cache + (1-self.rho)*Layer.dweights ** 2
+        Layer.bias_cache = self.rho*Layer.bias_cache + (1-self.rho)*Layer.dbiases ** 2
 
-        # Normalize Updates using AdaGrade Booster
         Layer.weights += - self.current_learning_rate*Layer.dweights/(np.sqrt(Layer.weight_cache)+ self.epsilon)  
         Layer.biases += - self.current_learning_rate*Layer.dbiases/(np.sqrt(Layer.bias_cache)+ self.epsilon)  
-            
+
     # After Updating parameters
     def post_update_params(self):
         self.iterations+=1
@@ -142,7 +143,7 @@ dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 #setting the learning rate to 0.85
-optimizer = Optimizer_Adagrad(decay=1e-6)
+optimizer = Optimizer_RMSprop(decay=1e-4)
 
 for epoch in range(10001):
     dense1.forward(X)
@@ -170,5 +171,4 @@ for epoch in range(10001):
     optimizer.pre_update_params()
     optimizer.update_params(dense1)
     optimizer.update_params(dense2)
-    optimizer.post_update_params()
-
+    optimizer.post_update_params()  
