@@ -33,23 +33,22 @@ I have successfully coded the first building blocks of the network and the requi
 * [x] **Derivatives & Gradients (NNFS)**
 * [x] **Partial Derivatives**
 * [x] **Chain Rule**
+* [x] **Categorical Cross Entropy Derivative**
+* [x] **SoftMax Activation Derivation**
+* [x] **Stochastic Gradient Descent**
+* [x] **Learning Rate**
+* [x] **Learning Rate Decay**
+* [x] **Momentum**
+* [x] **Adagrad**
+* [x] **RMSProp**
+* [x] **Adam**
+
 
 ---
 
 ## Math Foundations (NNFS)
 
 This project closely follows ***Neural Networks from Scratch*** and implements all math manually using NumPy.
-
-### Completed Concepts
-
-* Derivatives
-* Gradients
-* Partial derivatives
-* Chain rule
-* Gradient flow through layers
-* Optimization Metrics
-* Loss Calculation
-* Full Forward pass
 
 All gradients are derived and implemented explicitly — no auto-differentiation is used.
 
@@ -107,8 +106,9 @@ All gradients are derived and implemented explicitly — no auto-differentiation
 * [x] **Step 4:** Softmax Activation
 * [x] **Step 5:** Loss Calculation
 * [x] **Step 6 (Theory):** Derivatives, Gradients & Chain Rule (NNFS)
-* [ ] **Step 6 (Implementation):** Full Backpropagation
-* [ ] **Step 7:** Optimizer (SGD / Adam)
+* [x] **Step 6 (Implementation):** Full Backpropagation
+* [x] **Step 7:** Optimizer (SGD / Adam)
+* [x] **Step 8:** Testing
 
 ---
 
@@ -127,4 +127,3 @@ Every gradient and update rule is written by hand to build a deep understanding 
 
 I’m documenting my learning journey publicly. If you spot a mistake in the math, gradients, or logic — or if you have suggestions — feel free to open an issue or start a discussion.
 
-Learning > Frameworks 🚀
