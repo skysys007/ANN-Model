@@ -4,9 +4,17 @@ from nnfs.datasets import spiral_data
 nnfs.init()
 
 class Layer_Dense:
-    def __init__(self, n_inputs, n_neurons):
+    def __init__(self, n_inputs, n_neurons,
+                  weight_regulizer_l1 = 0, weight_regulizer_l2 = 0, 
+                  bias_regulizer_l1 = 0, bias_regulizer_l2 = 0):
         self.weights = 0.01 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
+        # Set Regularization Strength (λ)
+        self.weight_regulizer_l1 = weight_regulizer_l1
+        self.weight_regulizer_l2 = weight_regulizer_l2
+        self.bias_regulizer_l1 = bias_regulizer_l1
+        self.bias_regulizer_l2 = bias_regulizer_l2
+
 
     def forward(self, inputs):
         self.inputs = inputs
@@ -15,7 +23,27 @@ class Layer_Dense:
     def backward(self, dvalues):
         self.dweights = np.dot(self.inputs.T, dvalues)
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
+
+        # Gradients on Regularization
+        # L1 on weights
+        if self.weight_regulizer_l1 > 0:
+            dL1 = np.ones_like(self.weights)
+            dL1[self.weights<0] = -1
+            self.dweights += self.weight_regulizer_l1*dL1
+        # L1 on biases
+        if self.bias_regulizer_l1 > 0:
+            dL1 = np.ones_like(self.biases)
+            dL1[self.biases<0] = -1
+            self.dbiases += self.bias_regulizer_l1*dL1
+        # L2 on weights
+        if self.weight_regulizer_l2 > 0:
+            self.dweights += 2 * self.weight_regulizer_l2*self.weights
+        # L2 on biases
+        if self.bias_regulizer_l2 > 0:
+            self.dbiases += 2 * self.bias_regulizer_l2*self.biases
+
         self.dinputs = np.dot(dvalues, self.weights.T)
+
 
 
 class Activation_ReLU:
@@ -78,6 +106,22 @@ class Loss_Categorical_Cross_Entropy(Loss):
         self.dinputs = -y_true / dvalues
         self.dinputs /= samples
 
+    def regularization_loss(self, layer):
+        # 0 by default
+        regularization_loss = 0
+        # L1 regularization - weights
+        if layer.weight_regulizer_l1 > 0:
+            regularization_loss += layer.weight_regulizer_l1 *np.sum(np.abs(layer.weights))
+        # L2 regularization - weights
+        if layer.weight_regulizer_l2 > 0:
+            regularization_loss += layer.weight_regulizer_l2 *np.sum(layer.weights*layer.weights)
+        # L1 regularization - biases
+        if layer.bias_regulizer_l1 > 0:
+            regularization_loss += layer.bias_regulizer_l1 *np.sum(np.abs(layer.biases))
+        # L2 regularization - biases
+        if layer.bias_regulizer_l2 > 0:
+            regularization_loss += layer.bias_regulizer_l2 *np.sum(layer.weights*layer.biases)
+        return regularization_loss
 
 class Activation_SoftMax_Loss_CategoricalCrossentropy:
     def __init__(self):
@@ -142,18 +186,23 @@ class Optimizer_Adam:
 
 X, y = spiral_data(samples=100, classes=3)
 
-dense1 = Layer_Dense(2, 64)
+dense1 = Layer_Dense(2, 64, weight_regulizer_l2=5e-4, bias_regulizer_l2 =5e-4)
 activation1 = Activation_ReLU()
 dense2 = Layer_Dense(64, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 optimizer = Optimizer_Adam(learning_rate=0.02, decay=1e-5)
 
-for epoch in range(1000000):
+for epoch in range(10001):
     dense1.forward(X)
     activation1.forward(dense1.output)
     dense2.forward(activation1.output)
-    loss = loss_activation.forward(dense2.output, y)
+    # Calculate data loss
+    data_loss = loss_activation.forward(dense2.output, y)
+    # Calculate Regularization loss
+    regularization_loss = (loss_activation.loss.regularization_loss(dense1) + loss_activation.loss.regularization_loss(dense2))
+    # Calculate Total loss
+    loss = regularization_loss + data_loss
 
     predictions = np.argmax(loss_activation.output, axis=1)
     if len(y.shape) == 2:
@@ -164,6 +213,8 @@ for epoch in range(1000000):
         print('epoch:' , epoch 
               , 'acc: ' , accuracy 
               , 'loss: ' , loss
+              , 'data loss', data_loss
+              , 'reg_loss' , regularization_loss
               , 'lr: ', optimizer.current_learning_rate
               )
 

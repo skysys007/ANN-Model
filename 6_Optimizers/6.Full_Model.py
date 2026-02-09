@@ -1,5 +1,4 @@
 # The model is completed for now and consists of all features like Forward Pass, Loss Calculation, BackPropogation and Optimizers
-
 import numpy as np
 import nnfs
 from nnfs.datasets import spiral_data
