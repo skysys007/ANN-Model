@@ -58,6 +58,7 @@ class Activation_ReLU:
 
 class Activation_Softmax:
     def forward(self, inputs):
+        self.inputs = inputs
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
         self.output = probabilities
@@ -120,7 +121,7 @@ class Loss_Categorical_Cross_Entropy(Loss):
             regularization_loss += layer.bias_regulizer_l1 *np.sum(np.abs(layer.biases))
         # L2 regularization - biases
         if layer.bias_regulizer_l2 > 0:
-            regularization_loss += layer.bias_regulizer_l2 *np.sum(layer.weights*layer.biases)
+            regularization_loss += layer.bias_regulizer_l2 *np.sum(layer.biases*layer.biases)
         return regularization_loss
 
 class Activation_SoftMax_Loss_CategoricalCrossentropy:
@@ -168,8 +169,9 @@ class Optimizer_Adam:
         Layer.weight_momentums = self.beta_1*Layer.weight_momentums+(1-self.beta_1)*Layer.dweights
         Layer.bias_momentums = self.beta_1*Layer.bias_momentums+(1-self.beta_1)*Layer.dbiases
 
-        weight_momentums_corrected = Layer.weight_momentums/(1-(self.beta_1)**self.iterations+1)
-        bias_momentums_corrected = Layer.bias_momentums/(1-(self.beta_1)**self.iterations+1)
+        weight_momentums_corrected = Layer.weight_momentums / (1 - self.beta_1 ** (self.iterations + 1))
+        bias_momentums_corrected = Layer.bias_momentums / (1 - self.beta_1 ** (self.iterations + 1))
+
 
         Layer.weight_cache = self.beta_2 * Layer.weight_cache+(1-self.beta_2)*Layer.dweights**2      
         Layer.bias_cache = self.beta_2 * Layer.bias_cache+(1-self.beta_2)*Layer.dbiases**2   
@@ -184,14 +186,16 @@ class Optimizer_Adam:
     def post_update_params(self):
         self.iterations+=1
 
-X, y = spiral_data(samples=100, classes=3)
+X, y = spiral_data(samples=1000, classes=3)
 
-dense1 = Layer_Dense(2, 64, weight_regulizer_l2=5e-4, bias_regulizer_l2 =5e-4)
+dense1 = Layer_Dense(2, 512, weight_regulizer_l2=5e-4, bias_regulizer_l2 =5e-4)
 activation1 = Activation_ReLU()
-dense2 = Layer_Dense(64, 3)
+dense2 = Layer_Dense(512, 3)
 loss_activation = Activation_SoftMax_Loss_CategoricalCrossentropy()
 
 optimizer = Optimizer_Adam(learning_rate=0.02, decay=1e-5)
+if len(y.shape) == 2:
+    y = np.argmax(y, axis=1)
 
 for epoch in range(10001):
     dense1.forward(X)
@@ -205,8 +209,6 @@ for epoch in range(10001):
     loss = regularization_loss + data_loss
 
     predictions = np.argmax(loss_activation.output, axis=1)
-    if len(y.shape) == 2:
-        y = np.argmax(y, axis=1)
     accuracy = np.mean(predictions==y)
     
     if not epoch % 100:
