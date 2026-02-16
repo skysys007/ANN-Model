@@ -116,7 +116,16 @@ This project is intended to:
 * Gain hands-on experience with multi-class classification
 
 ---
-
+## Final Outcome
+The model:
+* loads the iris dataset 
+* takes 4 input features
+* uses 64 hidden layer neurons to prevent overfitting
+* uses Softmax Activation function 
+* uses Cross Categorical Entropy Loss to calculate Loss
+* uses the Adam Optimizer
+* after training, it achieved an accuracy of 0.9867 and loss of 0.039 after 200 epochs
+ 
 ## References
 
 * Fisher, R. A. (1936). *The Use of Multiple Measurements in Taxonomic Problems*
